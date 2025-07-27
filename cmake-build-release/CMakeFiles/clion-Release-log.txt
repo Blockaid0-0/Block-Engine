@@ -1,4 +1,0 @@
-"C:\Program Files\JetBrains\CLion 2024.3\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2024.3/bin/ninja/win/x64/ninja.exe" -G Ninja -S C:\Users\blkth\CLionProjects\OPENGL -B C:\Users\blkth\CLionProjects\OPENGL\cmake-build-release
--- Configuring done (0.2s)
--- Generating done (0.1s)
--- Build files have been written to: C:/Users/blkth/CLionProjects/OPENGL/cmake-build-release
