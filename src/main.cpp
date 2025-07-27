@@ -2,7 +2,7 @@
 #include <iostream>
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
-#include "headers/shaders.h"
+#include "shaders.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -106,7 +106,7 @@ int main() {
     }
 
     glfwSetFramebufferSizeCallback(window, framebuffer);
-    Shader ourShader("C:/Users/blkth/CLionProjects/OPENGL/vertexShaderSource.vert", "C:/Users/blkth/CLionProjects/OPENGL/fragmentShaderSource.frag");
+    Shader ourShader("src/vertexShaderSource.vert", "src/fragmentShaderSource.frag");
     unsigned int vao, vbo, ebo;
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -132,7 +132,7 @@ int main() {
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColors);
         stbi_set_flip_vertically_on_load(true);
 
-    unsigned char *data = stbi_load("C:/Users/blkth/CLionProjects/OPENGL/textures/joe.png", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("src/textures/joe.png", &width, &height, &nrChannels, 0);
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
