@@ -1,0 +1,11 @@
+# ninja log v6
+56	1975	7752909591443491	CMakeFiles/OPENGL.dir/glad.c.obj	7ea68333d9c4ac38
+87	5587	7752909591768086	CMakeFiles/OPENGL.dir/C_/Program_Files/JetBrains/CLion_2024.3/bin/mingw/include/imgui/imgui_draw.cpp.obj	8a2a9cfcbe596cd0
+17	3310	7753523965955840	CMakeFiles/OPENGL.dir/main.cpp.obj	10b7dd656b286642
+104	3921	7752909591930812	CMakeFiles/OPENGL.dir/C_/Program_Files/JetBrains/CLion_2024.3/bin/mingw/include/imgui/imgui_tables.cpp.obj	365bd6e0ca40f
+3311	4252	7753523998907296	OPENGL.exe	7dbfb829b7578c57
+73	3816	7752909591616636	CMakeFiles/OPENGL.dir/C_/Program_Files/JetBrains/CLion_2024.3/bin/mingw/include/imgui/imgui_demo.cpp.obj	94a773a515297f90
+3816	6889	7752909629059123	CMakeFiles/OPENGL.dir/C_/Program_Files/JetBrains/CLion_2024.3/bin/mingw/include/backends/imgui_impl_glfw.cpp.obj	62cef8881bbbc7e6
+3921	6169	7752909630109834	CMakeFiles/OPENGL.dir/C_/Program_Files/JetBrains/CLion_2024.3/bin/mingw/include/backends/imgui_impl_opengl3.cpp.obj	62b39eb247fcb147
+1976	7076	7752909610652925	CMakeFiles/OPENGL.dir/C_/Program_Files/JetBrains/CLion_2024.3/bin/mingw/include/imgui/imgui_widgets.cpp.obj	373dc0a20bb61f94
+63	7108	7752909591524211	CMakeFiles/OPENGL.dir/C_/Program_Files/JetBrains/CLion_2024.3/bin/mingw/include/imgui/imgui.cpp.obj	9d18244b659322a5
