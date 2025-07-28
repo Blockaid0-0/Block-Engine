@@ -43,6 +43,5 @@ target_link_libraries(Block_Engine
         ole32
         oleaut32
         uuid
-        comdlg32
         advapi32
 )
