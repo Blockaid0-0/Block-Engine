@@ -84,39 +84,45 @@ bool firstMouse = true;
 float yaw   = -90.0f;
 float pitch =  0.0f;
 float lastX =  800.0f / 2.0;
-float lastY =  600.0 / 2.0;
+float lastY =  600.0f / 2.0;
 float fov   =  45.0f;
 bool rightMouseHeld = false;
 
 void mouse_movement(GLFWwindow* window, double xp, double yp) {
-    if (!rightMouseHeld) return; // Don't process movement unless right click held
+    ImGuiIO& io = ImGui::GetIO();
+    io.AddMousePosEvent((float)xp, (float)yp);
+    if (!rightMouseHeld) return;
     if (firstMouse) {
-        lastX = xp;
-        lastY = yp;
+        lastX = (float)xp;
+        lastY = (float)yp;
         firstMouse = false;
     }
-    float xoff = xp - lastX;
-    float yoff = lastY - yp;
-    lastX = xp;
-    lastY = yp;
+    float xoff = (float)xp - lastX;
+    float yoff = lastY - (float)yp;
+    lastX = (float)xp;
+    lastY = (float)yp;
     const float sens = 0.1f;
     xoff *= sens;
     yoff *= sens;
     yaw += xoff;
     pitch += yoff;
-    if (pitch >= 180) {
-        pitch = 180;
+    if (pitch >= 90) {
+        pitch = 90;
     }
-    if (pitch <= -180) {
-        pitch = -180;
+    if (pitch <= -90) {
+        pitch = -90;
     }
     glm::vec3 direction;
     direction.x = cos(glm::radians(yaw));
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw));
     cameraFront = glm::normalize(direction);
+    ImGui_ImplGlfw_CursorPosCallback(window, xp, yp);
 }
+
 void mouse_button(GLFWwindow* window, int button, int actions, int mods) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.AddMouseButtonEvent(button, actions);
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
             if (actions == GLFW_PRESS) {
                 rightMouseHeld = true;
@@ -189,21 +195,21 @@ int main() {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
     float ang = 0;
     float x = 0, y = 0.001f, z = 0;
     float px = 0, py = 0, pz = 0;
     float currentAngle = 0.0f;
     float lastFrme = 0.0f;
     float fov = 60.0f;
-    glfwSetMouseButtonCallback(window, mouse_button);
     while (!glfwWindowShouldClose(window)) {
         input(window);
         auto currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-       // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwSetCursorPosCallback(window, mouse_movement);
-
+        glfwSetMouseButtonCallback(window, mouse_button);
         //Gui Setup lol
         if (!rightMouseHeld){
             ImGui_ImplOpenGL3_NewFrame();
