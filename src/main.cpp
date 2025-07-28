@@ -86,11 +86,52 @@ float pitch =  0.0f;
 float lastX =  800.0f / 2.0;
 float lastY =  600.0 / 2.0;
 float fov   =  45.0f;
+bool rightMouseHeld = false;
 
-
+void mouse_movement(GLFWwindow* window, double xp, double yp) {
+    if (!rightMouseHeld) return; // Don't process movement unless right click held
+    if (firstMouse) {
+        lastX = xp;
+        lastY = yp;
+        firstMouse = false;
+    }
+    float xoff = xp - lastX;
+    float yoff = lastY - yp;
+    lastX = xp;
+    lastY = yp;
+    const float sens = 0.1f;
+    xoff *= sens;
+    yoff *= sens;
+    yaw += xoff;
+    pitch += yoff;
+    if (pitch >= 180) {
+        pitch = 180;
+    }
+    if (pitch <= -180) {
+        pitch = -180;
+    }
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw));
+    cameraFront = glm::normalize(direction);
+}
+void mouse_button(GLFWwindow* window, int button, int actions, int mods) {
+        if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            if (actions == GLFW_PRESS) {
+                rightMouseHeld = true;
+                ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+            else if (actions == GLFW_RELEASE) {
+                rightMouseHeld = false;
+                ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        }
+    }
 
 int main() {
-
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -154,33 +195,37 @@ int main() {
     float currentAngle = 0.0f;
     float lastFrme = 0.0f;
     float fov = 60.0f;
+    glfwSetMouseButtonCallback(window, mouse_button);
     while (!glfwWindowShouldClose(window)) {
         input(window);
         auto currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        //glfwSetCursorPosCallback(window, GLFWcursorposfun(mouse_callback));
+       // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetCursorPosCallback(window, mouse_movement);
+
         //Gui Setup lol
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ImGui::Begin("Settings");
-        ImGui::Text("Rotation");
-        ImGui::InputFloat("Speed", &ang, 0.1f, 1.0f);
-        ImGui::SliderFloat("X", &x, -1.0f, 1.0f);
-        ImGui::SliderFloat("Y", &y, -1.0f, 1.0f);
-        ImGui::SliderFloat("Z", &z, -1.0f, 1.0f);
-        ImGui::Text("Position");
-        ImGui::SliderFloat("PX", &px, -1.0f, 1.0f);
-        ImGui::SliderFloat("PY", &py, -1.0f, 1.0f);
-        ImGui::SliderFloat("PZ", &pz, -1.0f, 1.0f);
-        ImGui::Text("Movement");
-        ImGui::InputFloat("Player Speed", &movSpeed, 0.1f, 1.0f);
-        ImGui::Text("Camera Settings");
-        ImGui::InputFloat("FOV", &fov, 0.1f, 1.0f);
-        ImGui::Checkbox("WireFrame", &wireFrame);
-        ImGui::End();
+        if (!rightMouseHeld){
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            ImGui::Begin("Settings");
+            ImGui::Text("Rotation");
+            ImGui::InputFloat("Speed", &ang, 0.1f, 1.0f);
+            ImGui::SliderFloat("X", &x, -1.0f, 1.0f);
+            ImGui::SliderFloat("Y", &y, -1.0f, 1.0f);
+            ImGui::SliderFloat("Z", &z, -1.0f, 1.0f);
+            ImGui::Text("Position");
+            ImGui::SliderFloat("PX", &px, -1.0f, 1.0f);
+            ImGui::SliderFloat("PY", &py, -1.0f, 1.0f);
+            ImGui::SliderFloat("PZ", &pz, -1.0f, 1.0f);
+            ImGui::Text("Movement");
+            ImGui::InputFloat("Player Speed", &movSpeed, 0.1f, 1.0f);
+            ImGui::Text("Camera Settings");
+            ImGui::InputFloat("FOV", &fov, 0.1f, 1.0f);
+            ImGui::Checkbox("WireFrame", &wireFrame);
+            ImGui::End();
+        }
         if (fov >= 120.0f) {
             fov = 120.0f;
         }
@@ -241,9 +286,9 @@ void input(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         cameraPos -= cameraSpeed * cameraFront;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= cameraRight * cameraSpeed;
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += cameraRight * cameraSpeed;
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         cameraPos += cameraSpeed * cameraUp;
     }
