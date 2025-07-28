@@ -197,6 +197,7 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 330 core");
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
+    ImVec4 col = ImVec4(0.2, 0.1, 1.0, 1.0);
     float ang = 0;
     float x = 0, y = 0.001f, z = 0;
     float px = 0, py = 0, pz = 0;
@@ -230,6 +231,7 @@ int main() {
             ImGui::Text("Camera Settings");
             ImGui::InputFloat("FOV", &fov, 0.1f, 1.0f);
             ImGui::Checkbox("WireFrame", &wireFrame);
+            ImGui::ColorEdit3("Background Color", (float*)&col);
             ImGui::End();
         }
         if (fov >= 120.0f) {
@@ -261,7 +263,7 @@ int main() {
         unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
         unsigned int viewLoc  = glGetUniformLocation(ourShader.ID, "view");
         unsigned int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
-        glClearColor(0.2, 0.1, 1.0, 1.0);
+        glClearColor(col.x * col.w,col.y * col.w,col.z * col.w, col.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ourShader.use();
         glUniformMatrix4fv((int)transformLoc, 1, GL_FALSE, &trans[0][0]);
