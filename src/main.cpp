@@ -83,8 +83,8 @@ void framebuffer(GLFWwindow* window, int width, int height) {
 bool firstMouse = true;
 float yaw   = -90.0f;
 float pitch =  0.0f;
-float lastX =  800.0f / 2.0;
-float lastY =  600.0f / 2.0;
+float lastX =  (float)SWIDTH / 2.0f;
+float lastY =  (float)SHEIGHT / 2.0f;
 float fov   =  45.0f;
 bool rightMouseHeld = false;
 
@@ -231,7 +231,7 @@ int main() {
             ImGui::Text("Camera Settings");
             ImGui::InputFloat("FOV", &fov, 0.1f, 1.0f);
             ImGui::Checkbox("WireFrame", &wireFrame);
-            ImGui::ColorEdit3("Background Color", (float*)&col);
+            ImGui::ColorEdit3("BG Color", (float*)&col);
             ImGui::End();
         }
         if (fov >= 120.0f) {
