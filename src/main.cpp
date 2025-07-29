@@ -106,6 +106,7 @@ void mouse_movement(GLFWwindow* window, double xp, double yp) {
     yoff *= sens;
     yaw += xoff;
     pitch += yoff;
+
     if (pitch >= 90) {
         pitch = 90;
     }
@@ -128,6 +129,11 @@ void mouse_button(GLFWwindow* window, int button, int actions, int mods) {
                 rightMouseHeld = true;
                 ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                double xpos = 0, ypos = 0;
+                glfwGetCursorPos(window, &xpos, &ypos);
+                lastX = (float)xpos;
+                lastY = (float)ypos;
+
             }
             else if (actions == GLFW_RELEASE) {
                 rightMouseHeld = false;
@@ -232,6 +238,9 @@ int main() {
             ImGui::InputFloat("FOV", &fov, 0.1f, 1.0f);
             ImGui::Checkbox("WireFrame", &wireFrame);
             ImGui::ColorEdit3("BG Color", (float*)&col);
+            ImGui::Text("Pitch: %.1f%", pitch);
+            ImGui::Text("Yaw: %.1f%", yaw);
+
             ImGui::End();
         }
         if (fov >= 120.0f) {
@@ -246,7 +255,7 @@ int main() {
         if (wireFrame == false) {
             wf = 0x1B02;
         }
-        //Linear algebra bs
+        std::cout << yaw << ", " << pitch << std::endl;
         auto model         = glm::mat4(1.0f);
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         glm::mat4 projection;
