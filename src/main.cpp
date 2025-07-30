@@ -83,14 +83,78 @@ void framebuffer(GLFWwindow* window, int width, int height) {
 bool firstMouse = true;
 float yaw   = -90.0f;
 float pitch =  0.0f;
-float lastX =  800.0f / 2.0;
-float lastY =  600.0 / 2.0;
+float lastX =  (float)SWIDTH / 2.0f;
+float lastY =  (float)SHEIGHT / 2.0f;
 float fov   =  45.0f;
+bool rightMouseHeld = false;
 
+void mouse_movement(GLFWwindow* window, double xp, double yp) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.AddMousePosEvent((float)xp, (float)yp);
+    if (!rightMouseHeld) return;
+    if (firstMouse) {
+        lastX = (float)xp;
+        lastY = (float)yp;
+        firstMouse = false;
+    }
+    float xoff = (float)xp - lastX;
+    float yoff = lastY - (float)yp;
+    lastX = (float)xp;
+    lastY = (float)yp;
+    const float sens = 0.1f;
+    xoff *= sens;
+    yoff *= sens;
+    yaw += xoff;
+    pitch += yoff;
 
+    if (pitch >= 90) {
+        pitch = 90;
+    }
+    if (pitch <= -90) {
+        pitch = -90;
+    }
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw));
+    cameraFront = glm::normalize(direction);
+    ImGui_ImplGlfw_CursorPosCallback(window, xp, yp);
+}
 
+void mouse_button(GLFWwindow* window, int button, int actions, int mods) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.AddMouseButtonEvent(button, actions);
+        if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            if (actions == GLFW_PRESS) {
+                rightMouseHeld = true;
+                ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                double xpos = 0, ypos = 0;
+                glfwGetCursorPos(window, &xpos, &ypos);
+                lastX = (float)xpos;
+                lastY = (float)ypos;
+
+            }
+            else if (actions == GLFW_RELEASE) {
+                rightMouseHeld = false;
+                ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        }
+    }
+void setWinIcon(GLFWwindow* window, const char* iconPath) {
+    stbi_set_flip_vertically_on_load(false);
+    GLFWimage images[1];
+    images[0].pixels = stbi_load(iconPath, &images[0].width, &images[0].height, nullptr, 4); // RGBA
+    if (!images[0].pixels) {
+        fprintf(stderr, "Failed to load icon: %s\n", iconPath);
+        return;
+    }
+
+    glfwSetWindowIcon(window, 1, images);
+    stbi_image_free(images[0].pixels);
+}
 int main() {
-
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -148,39 +212,49 @@ int main() {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
+    ImVec4 col = ImVec4(0.2, 0.1, 1.0, 1.0);
     float ang = 0;
     float x = 0, y = 0.001f, z = 0;
     float px = 0, py = 0, pz = 0;
     float currentAngle = 0.0f;
     float lastFrme = 0.0f;
     float fov = 60.0f;
+    setWinIcon(window, "src/textures/logo.png");
     while (!glfwWindowShouldClose(window)) {
         input(window);
         auto currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        //glfwSetCursorPosCallback(window, GLFWcursorposfun(mouse_callback));
+        glfwSetCursorPosCallback(window, mouse_movement);
+        glfwSetMouseButtonCallback(window, mouse_button);
         //Gui Setup lol
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ImGui::Begin("Settings");
-        ImGui::Text("Rotation");
-        ImGui::InputFloat("Speed", &ang, 0.1f, 1.0f);
-        ImGui::SliderFloat("X", &x, -1.0f, 1.0f);
-        ImGui::SliderFloat("Y", &y, -1.0f, 1.0f);
-        ImGui::SliderFloat("Z", &z, -1.0f, 1.0f);
-        ImGui::Text("Position");
-        ImGui::SliderFloat("PX", &px, -1.0f, 1.0f);
-        ImGui::SliderFloat("PY", &py, -1.0f, 1.0f);
-        ImGui::SliderFloat("PZ", &pz, -1.0f, 1.0f);
-        ImGui::Text("Movement");
-        ImGui::InputFloat("Player Speed", &movSpeed, 0.1f, 1.0f);
-        ImGui::Text("Camera Settings");
-        ImGui::InputFloat("FOV", &fov, 0.1f, 1.0f);
-        ImGui::Checkbox("WireFrame", &wireFrame);
-        ImGui::End();
+        if (!rightMouseHeld){
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            ImGui::Begin("Settings");
+            ImGui::Text("Rotation");
+            ImGui::InputFloat("Speed", &ang, 0.1f, 1.0f);
+            ImGui::SliderFloat("X", &x, -1.0f, 1.0f);
+            ImGui::SliderFloat("Y", &y, -1.0f, 1.0f);
+            ImGui::SliderFloat("Z", &z, -1.0f, 1.0f);
+            ImGui::Text("Position");
+            ImGui::SliderFloat("PX", &px, -1.0f, 1.0f);
+            ImGui::SliderFloat("PY", &py, -1.0f, 1.0f);
+            ImGui::SliderFloat("PZ", &pz, -1.0f, 1.0f);
+            ImGui::Text("Movement");
+            ImGui::InputFloat("Player Speed", &movSpeed, 0.1f, 1.0f);
+            ImGui::Text("Camera Settings");
+            ImGui::InputFloat("FOV", &fov, 0.1f, 1.0f);
+            ImGui::Checkbox("WireFrame", &wireFrame);
+            ImGui::ColorEdit3("BG Color", (float*)&col);
+            ImGui::Text("Pitch: %.1f%", pitch);
+            ImGui::Text("Yaw: %.1f%", yaw);
+
+            ImGui::End();
+        }
         if (fov >= 120.0f) {
             fov = 120.0f;
         }
@@ -193,7 +267,7 @@ int main() {
         if (wireFrame == false) {
             wf = 0x1B02;
         }
-        //Linear algebra bs
+        std::cout << yaw << ", " << pitch << std::endl;
         auto model         = glm::mat4(1.0f);
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         glm::mat4 projection;
@@ -210,7 +284,7 @@ int main() {
         unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
         unsigned int viewLoc  = glGetUniformLocation(ourShader.ID, "view");
         unsigned int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
-        glClearColor(0.2, 0.1, 1.0, 1.0);
+        glClearColor(col.x * col.w,col.y * col.w,col.z * col.w, col.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ourShader.use();
         glUniformMatrix4fv((int)transformLoc, 1, GL_FALSE, &trans[0][0]);
@@ -241,9 +315,9 @@ void input(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         cameraPos -= cameraSpeed * cameraFront;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= cameraRight * cameraSpeed;
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += cameraRight * cameraSpeed;
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         cameraPos += cameraSpeed * cameraUp;
     }
