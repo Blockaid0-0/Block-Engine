@@ -34,6 +34,8 @@ imgui.ini
 *.exe
 *.out
 *.app
+# Logos
+*.rc
 
 /.idea
 .DS_Store

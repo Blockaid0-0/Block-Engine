@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories("C:/Program Files/JetBrains/CLion 2024.3/bin/mingw/include")
 include_directories("${PROJECT_SOURCE_DIR}/headers")
 link_directories("C:/Program Files/lib")  # Change if GLFW/glad libs are somewhere else
+
 if (WIN32)
     set(CMAKE_WIN32_EXECUTABLE ON)
 endif()
@@ -27,9 +28,17 @@ set(IMGUI_SOURCES
 add_executable(Block_Engine
         src/main.cpp
         src/glad.c
+        logo.rc
         ${IMGUI_SOURCES}
 )
-
+add_custom_command(TARGET Block_Engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/src/textures" "${CMAKE_CURRENT_BINARY_DIR}/src/textures"
+)
+add_custom_command(TARGET Block_Engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/src"
+)
 # Link everything
 target_link_libraries(Block_Engine
         ws2_32

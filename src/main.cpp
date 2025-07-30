@@ -142,7 +142,18 @@ void mouse_button(GLFWwindow* window, int button, int actions, int mods) {
             }
         }
     }
+void setWinIcon(GLFWwindow* window, const char* iconPath) {
+    stbi_set_flip_vertically_on_load(false);
+    GLFWimage images[1];
+    images[0].pixels = stbi_load(iconPath, &images[0].width, &images[0].height, nullptr, 4); // RGBA
+    if (!images[0].pixels) {
+        fprintf(stderr, "Failed to load icon: %s\n", iconPath);
+        return;
+    }
 
+    glfwSetWindowIcon(window, 1, images);
+    stbi_image_free(images[0].pixels);
+}
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -210,6 +221,7 @@ int main() {
     float currentAngle = 0.0f;
     float lastFrme = 0.0f;
     float fov = 60.0f;
+    setWinIcon(window, "src/textures/logo.png");
     while (!glfwWindowShouldClose(window)) {
         input(window);
         auto currentFrame = (float)glfwGetTime();
